@@ -9,15 +9,16 @@ permissions:
   contents: read
 
 concurrency:
-  group: github-pages
+  group: ai-interview-bank-server
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: read
+    environment:
+      name: production
+      url: https://${{ vars.AI_INTERVIEW_DEPLOY_HOST }}/ai-interview-bank/
     steps:
       - uses: actions/checkout@v6
         with:
@@ -30,25 +31,37 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Run tests
         run: python -m unittest discover
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
       - name: Build the offline HTML
         run: python collect.py --render-only
-      - name: Upload the static site
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: dist
+      - name: Deploy the static site
+        env:
+          DEPLOY_HOST: ${{ vars.AI_INTERVIEW_DEPLOY_HOST }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.AI_INTERVIEW_DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_KEY: ${{ secrets.AI_INTERVIEW_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${DEPLOY_HOST:?Missing deployment host}"
+          : "${DEPLOY_KNOWN_HOSTS:?Missing SSH host key}"
+          : "${DEPLOY_KEY:?Missing deployment key}"
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          credentials=$(mktemp -d "$RUNNER_TEMP/ai-interview-deploy.XXXXXXXX")
+          trap 'rm -f -- "$credentials/key" "$credentials/known_hosts"; rmdir -- "$credentials"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$credentials/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$credentials/known_hosts"
+          unset DEPLOY_KEY
+
+          expected=$(sha256sum dist/index.html)
+          actual=$(gzip -c dist/index.html | ssh -T -i "$credentials/key" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$credentials/known_hosts" -o ConnectTimeout=15 \
+            -o ServerAliveInterval=10 -o ServerAliveCountMax=3 \
+            "ai-interview-deploy@$DEPLOY_HOST")
+          test "${expected%% *}" = "$actual"
+      - name: Verify public site
+        env:
+          DEPLOY_HOST: ${{ vars.AI_INTERVIEW_DEPLOY_HOST }}
+        run: |
+          curl --fail --silent --show-error --retry 2 --max-time 60 \
+            "https://$DEPLOY_HOST/ai-interview-bank/" --output "$RUNNER_TEMP/published-interview-bank.html"
+          cmp dist/index.html "$RUNNER_TEMP/published-interview-bank.html"

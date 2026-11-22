@@ -45,6 +45,8 @@ python collect.py --render-only
 python -m unittest discover
 ```
 
-## GitHub Actions 部署
+## 服务器部署
 
-GitHub Pages 的发布源设为 GitHub Actions。推送到 `main` 会触发流水线，也可以在 Actions 页手动运行。流水线先测试，再用仓库内的题库快照构建页面，并把 `dist/` 部署到 GitHub Pages。
+推送到 `main` 会触发 GitHub Actions，也可以在 Actions 页手动运行。流水线测试并构建离线 HTML，上传到服务器的 `/ai-interview-bank/`，再通过 HTTPS 校验发布文件。
+
+服务器使用 [Nginx 路由配置](deploy/nginx.locations.inc) 和[静态文件接收脚本](deploy/receive-index.sh)。安装接收脚本到 `/usr/local/libexec/ai-interview-bank-receive-index`，为 `ai-interview-deploy` 用户配置仅能执行该脚本的 SSH 公钥。仓库变量 `AI_INTERVIEW_DEPLOY_HOST` 和 `AI_INTERVIEW_DEPLOY_KNOWN_HOSTS` 保存地址和主机公钥。GitHub Actions secret `AI_INTERVIEW_DEPLOY_KEY` 保存该流水线专用的部署密钥。
