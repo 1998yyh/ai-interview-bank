@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="大模型应用开发面试题库，涵盖 LLM 基础、RAG、Agent、评测和部署。">
+  <title>大模型应用开发面试题库</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f7fb;
+      --surface: #fff;
+      --ink: #1c2036;
+      --muted: #575d74;
+      --line: #dfe2ed;
+      --accent: #5035ad;
+      --accent-soft: #eeebfa;
+      --page-gutter: 32px;
+      font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; color: var(--ink); background: var(--paper); line-height: 1.6; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    :focus-visible { outline: 2px solid #6849d5; outline-offset: 3px; }
+    .wrap { width: min(1160px, calc(100% - 2 * var(--page-gutter))); margin-inline: auto; }
+
+    .site-header { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 64px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; font-weight: 700; }
+    .brand-icon { display: grid; grid-template-columns: repeat(2, 5px); gap: 3px; place-content: center; width: 30px; height: 30px; border-radius: 8px; background: #262045; }
+    .brand-icon i { width: 5px; height: 5px; border-radius: 1px; background: #e3dafa; }
+    .brand-icon i:nth-child(2) { background: #ab90fa; }
+    .header-link { color: var(--muted); font-size: .875rem; text-decoration: none; }
+    .header-link:hover { text-decoration: underline; }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      margin-bottom: 24px;
+      padding: 36px 44px;
+      border-radius: 18px;
+      background: linear-gradient(112deg, #211b40 22%, #2b2055 62%, #3a296c);
+      color: #fff;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2.15rem, 4vw, 3.4rem);
+      line-height: 1.2;
+      letter-spacing: -.045em;
+    }
+    .hero h1 span { color: #cfbaff; }
+    .hero p { max-width: 38ch; margin: 15px 0 0; color: #e6def5; }
+    .hero-art {
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 0 54%;
+      overflow: hidden;
+      background-image:
+        linear-gradient(#c4a7fa17 1px, transparent 1px),
+        linear-gradient(90deg, #c4a7fa17 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(90deg, transparent, #000 38%);
+    }
+    .orbit {
+      position: absolute;
+      top: 50%;
+      left: 57%;
+      display: grid;
+      place-items: center;
+      width: 268px;
+      aspect-ratio: 1;
+      border: 1px solid #d7c3ff55;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .orbit::before, .orbit::after {
+      position: absolute;
+      content: "";
+      border: 1px solid #d7c3ff55;
+      border-radius: 50%;
+    }
+    .orbit::before { inset: 26px; }
+    .orbit::after { inset: 54px; }
+    .orbit-center {
+      width: 72px;
+      height: 72px;
+      border: 1px solid #d6bfff;
+      border-radius: 18px;
+      background: linear-gradient(150deg, #bfaaee60, #8770b82b);
+      box-shadow: 0 0 40px #a990ff44;
+      transform: rotate(45deg);
+    }
+    .orbit-point {
+      position: absolute;
+      top: var(--y);
+      left: var(--x);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #dac7ff;
+      box-shadow: 0 0 14px #c09fffbb;
+    }
+
+    .page-shell {
+      display: grid;
+      grid-template-columns: clamp(9rem, 17vw, 13rem) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-top: 26px;
+    }
+    .topics[hidden] + main { grid-column: 1 / -1; }
+    .topics {
+      position: sticky;
+      top: 12px;
+      max-height: calc(100dvh - 24px);
+      padding: 16px 12px 12px;
+      overflow: auto;
+      scrollbar-width: thin;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+    .topics h2 { margin: 0 10px 9px; color: var(--muted); font-size: .875rem; font-weight: 650; }
+    .topic-list { display: grid; gap: 3px; }
+    .topic-filter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 11px;
+      min-height: 44px;
+      padding: 8px 11px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .topic-filter:hover, .subtopic-filter:hover { background: #f3f2f9; }
+    .topic-filter[aria-pressed="true"], .subtopic-filter[aria-pressed="true"] { border-color: #ded5f6; color: var(--accent); background: var(--accent-soft); font-weight: 650; }
+    .topic-filter[aria-expanded] { display: grid; grid-template-columns: minmax(0, 1fr) auto 7px; gap: 6px; }
+    .topic-filter[aria-expanded]::after { width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); content: ""; }
+    .topic-filter[aria-expanded="true"]::after { transform: rotate(225deg); }
+    .subtopic-list { display: grid; gap: 2px; margin: 1px 0 5px 9px; padding: 0 0 0 5px; border-inline-start: 1px solid var(--line); list-style: none; }
+    .subtopic-filter { display: flex; align-items: baseline; justify-content: space-between; gap: 5px; width: 100%; min-height: 34px; padding: 5px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; text-align: start; line-height: 1.4; font-size: .875rem; overflow-wrap: anywhere; }
+    .topic-count { color: var(--muted); font-size: .875rem; font-variant-numeric: tabular-nums; }
+    [aria-pressed="true"] > .topic-count { color: inherit; }
+    #overview-filter { margin-bottom: 4px; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 52px;
+      padding-inline: 17px 9px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+    }
+    .search-box:focus-within { border-color: #8066d0; outline: 2px solid #e7dffa; }
+    .search-icon { position: relative; flex: 0 0 15px; height: 15px; border: 1.7px solid #6e6984; border-radius: 50%; }
+    .search-icon::after { position: absolute; right: -5px; bottom: -3px; width: 6px; height: 1.7px; border-radius: 1px; background: #6e6984; transform: rotate(47deg); content: ""; }
+    .search-box input { flex: 1; min-width: 0; min-height: 50px; padding: 0; border: 0; outline: none; background: transparent; }
+    .search-box input::placeholder { color: #686d83; }
+    .search-box input::-webkit-search-cancel-button { appearance: none; }
+    .text-button { min-height: 36px; padding: 5px 9px; border: 0; border-radius: 7px; background: transparent; color: var(--accent); font-size: .875rem; font-weight: 650; }
+    .text-button:hover { background: var(--accent-soft); }
+    .result-header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-block: 18px 10px; }
+    .result-header h2 { margin: 0; font-size: 1rem; }
+    .result-count { margin: 0; color: var(--muted); font-size: .875rem; font-variant-numeric: tabular-nums; }
+    .study { margin-top: 18px; }
+    .study h2 { margin: 0; font-size: 1.125rem; line-height: 1.4; }
+    .study-intro { margin: 5px 0 12px; color: var(--muted); font-size: .9375rem; }
+    .study-group + .study-group { margin-top: 18px; }
+    .study-group h3 { margin: 0 0 8px; font-size: .9375rem; }
+    .study-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .study-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+      min-height: 45px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      text-align: left;
+      font-size: .9375rem;
+      overflow-wrap: anywhere;
+    }
+    .study-card:hover { border-color: #ad9ad5; background: #fcfbff; }
+    .study-card-title { color: var(--accent); font-weight: 700; }
+    .study-card-count { flex-shrink: 0; color: var(--muted); font-size: .875rem; }
+    .study-back { margin-bottom: 6px; margin-inline-start: -9px; }
+
+    .questions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 9px; }
+    .question { border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+    .question:hover { border-color: #c7bfdc; }
+    .question[open] { border-color: #c7bbeb; }
+    .question summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 80px; padding: 13px 17px; border-radius: 10px; cursor: pointer; list-style: none; }
+    .question summary::-webkit-details-marker { display: none; }
+    .question-label { display: grid; justify-items: start; gap: 3px; min-width: 0; }
+    .topic-tag { color: var(--accent); font-size: .875rem; font-weight: 700; }
+    .question-title { font-size: 1.0625rem; font-weight: 650; overflow-wrap: anywhere; }
+    .answer-toggle { display: inline-flex; flex-shrink: 0; align-items: center; gap: 10px; color: var(--muted); font-size: .875rem; }
+    .answer-toggle::after { width: 8px; height: 8px; margin: 0 3px 4px 1px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); content: ""; }
+    .question[open] .answer-toggle::after { margin-block: 4px 0; transform: rotate(225deg); }
+    .question[open] .expand-label, .question:not([open]) .collapse-label { display: none; }
+    .answer { margin-inline: 17px; padding-block: 15px 17px; border-top: 1px solid var(--line); }
+    .answer h3 { margin: 0 0 6px; font-size: .9375rem; }
+    .answer p { margin: 0 0 10px; color: #34394e; }
+    .question-sources { display: grid; gap: 8px; margin: 15px 0 0; padding: 12px 14px; border-radius: 8px; background: #f6f5fb; overflow-wrap: anywhere; }
+    .question-sources div { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: 6px; }
+    .question-sources dt { color: #424660; font-weight: 650; }
+    .question-sources dd { display: flex; flex-wrap: wrap; column-gap: 16px; row-gap: 4px; margin: 0; }
+    .formula { display: block; margin-block: 0 12px; padding: 9px 12px; border-radius: 7px; background: #f0edf9; color: #372475; font-weight: 650; overflow-wrap: anywhere; }
+    .answer-body { min-width: 0; overflow-wrap: anywhere; }
+    .answer-body :is(ul, ol) { margin-block: 8px 13px; padding-inline-start: 1.5em; }
+    .answer-body li + li { margin-top: 5px; }
+    .answer-body blockquote { margin-inline: 0; padding-inline-start: 13px; border-inline-start: 3px solid #c7bbeb; }
+    .answer-body code { padding: .13em .27em; border-radius: 4px; background: #f0edf9; font-size: .9em; }
+    .answer-body pre, .license-text { padding: 12px; border-radius: 8px; background: #f0edf9; }
+    .answer-body pre { overflow: auto; }
+    .answer-body pre code { padding: 0; }
+    .license-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .answer-table-scroll { overflow: auto; margin-block: 13px 15px; border: 1px solid var(--line); border-radius: 8px; }
+    .answer-body table { width: 100%; min-width: 23rem; border-collapse: collapse; }
+    .answer-body :is(th, td) { padding: 8px 11px; text-align: start; vertical-align: top; }
+    .answer-body th { background: #f0edf9; }
+    .answer-body tr + tr, .answer-body tbody { border-top: 1px solid var(--line); }
+    .answer-body :is(th, td) + :is(th, td) { border-inline-start: 1px solid var(--line); }
+    .pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; font-size: .875rem; }
+    .pagination button { min-height: 38px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--accent); }
+    .pagination button:disabled { color: var(--muted); cursor: default; opacity: .6; }
+    .source-details { margin-top: 9px; overflow-wrap: anywhere; }
+    .source-details summary { cursor: pointer; color: var(--accent); }
+    .source-details ul { margin: 8px 0 0; padding-inline-start: 20px; }
+    .source-details li + li { margin-top: 7px; }
+    .source-details li details { margin-top: 3px; }
+
+    .empty { padding: 27px 18px; border: 1px dashed #c5bfd8; border-radius: 11px; text-align: center; }
+    .empty p { margin: 0 0 5px; color: var(--muted); }
+    .about { margin-block: 30px; padding-block: 15px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .875rem; }
+    .about h2 { margin: 0 0 3px; color: var(--ink); font-size: .875rem; }
+    .about p { margin: 0; }
+    .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+    @media (max-width: 800px) {
+      :root { --page-gutter: 18px; }
+      .page-shell { grid-template-columns: clamp(8.25rem, 21vw, 9.5rem) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
+      .hero { margin-bottom: 18px; padding: 24px 22px; }
+      .topics { padding: 11px 8px 8px; }
+      .topics h2 { margin: 0 7px 6px; }
+      .topic-filter { gap: 5px; padding-inline: 7px; font-size: .875rem; }
+      .answer-toggle span { display: none; }
+      .study-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 540px) {
+      :root { --page-gutter: 12px; }
+      .header-inner { min-height: 56px; }
+      .page-shell { grid-template-columns: 88px minmax(0, 1fr); gap: 8px; margin-top: 12px; }
+      .topics { padding: 9px 4px 5px; border-radius: 10px; }
+      .topics h2 { margin-inline: 5px; }
+      .topic-filter { padding-inline: 5px; }
+      .topic-filter[aria-expanded] { grid-template-columns: minmax(0, 1fr) 6px; gap: 3px; white-space: normal; }
+      .subtopic-list { margin-inline-start: 4px; padding-inline-start: 3px; }
+      .subtopic-filter { padding-inline: 4px; }
+      .study-cards { grid-template-columns: minmax(0, 1fr); }
+      .topic-count { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      .hero { margin-bottom: 12px; padding: 18px 12px; border-radius: 13px; }
+      .hero h1 { font-size: clamp(1.375rem, 5.6vw, 1.9rem); letter-spacing: -.04em; overflow-wrap: anywhere; }
+      .hero p { margin-top: 10px; font-size: .9375rem; }
+      .hero-art { opacity: .45; }
+      .orbit { left: 100%; }
+      .search-box { gap: 10px; padding-inline: 11px 6px; }
+      .question summary { gap: 9px; padding-inline: 12px; }
+      .answer { margin-inline: 12px; }
+      .question-sources div { grid-template-columns: minmax(0, 1fr); gap: 1px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top">
+        <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        AI 面试题库
+      </a>
+      <a class="header-link" href="#about">收录说明</a>
+    </div>
+  </header>
+
+  <div class="wrap page-shell">
+    <aside class="topics" id="topic-filters" aria-labelledby="topic-heading" hidden>
+      <h2 id="topic-heading">主题</h2>
+      <div class="topic-list">
+        <button class="topic-filter" id="overview-filter" type="button" aria-pressed="true">全部题型</button>
+        <button class="topic-filter" type="button" data-topic="" aria-pressed="false">全部题目 <span class="topic-count"></span></button>
+        <button class="topic-filter" type="button" data-topic="llm" aria-pressed="false">LLM 基础 <span class="topic-count"></span></button>
+        <button class="topic-filter" type="button" data-topic="rag" aria-pressed="false">RAG <span class="topic-count"></span></button>
+        <button class="topic-filter" type="button" data-topic="agent" aria-pressed="false">Agent <span class="topic-count"></span></button>
+        <button class="topic-filter" type="button" data-topic="eval" aria-pressed="false">评测 <span class="topic-count"></span></button>
+        <button class="topic-filter" type="button" data-topic="deploy" aria-pressed="false">部署 <span class="topic-count"></span></button>
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit">
+            <span class="orbit-center"></span>
+            <span class="orbit-point" style="--x: 21%; --y: 18%;"></span>
+            <span class="orbit-point" style="--x: 84%; --y: 28%;"></span>
+            <span class="orbit-point" style="--x: 31%; --y: 68%;"></span>
+            <span class="orbit-point" style="--x: 69%; --y: 83%;"></span>
+          </div>
+        </div>
+        <h1 id="page-title">大模型应用开发<br><span>面试题库</span></h1>
+        <p>选择题型即可浏览该专题的题目和参考答案。</p>
+      </section>
+
+      <section aria-label="题库浏览">
+        <div class="search-box" id="search-controls" role="search" hidden>
+          <span class="search-icon" aria-hidden="true"></span>
+          <label class="sr-only" for="search">搜索题目和答案</label>
+          <input type="search" id="search" placeholder="搜索题目和答案" autocomplete="off">
+          <button class="text-button" id="clear-search" type="button" aria-label="清除关键词" hidden>清除</button>
+        </div>
+
+        <section class="study" id="study" aria-labelledby="study-heading" hidden>
+          <button class="text-button study-back" id="study-back" type="button" hidden></button>
+          <h2 id="study-heading" tabindex="-1">全部题型</h2>
+          <p class="study-intro" id="study-intro"></p>
+          <div id="study-grid"></div>
+        </section>
+
+        <div id="results">
+        <div class="result-header">
+          <h2 id="question-heading" tabindex="-1">练习题</h2>
+          <p class="result-count" id="result-count" role="status"></p>
+        </div>
+        <div class="questions" id="questions"></div>
+        <noscript>
+        <p>启用 JavaScript 后可搜索完整题库。以下是离线样题。</p>
+        <div class="questions">
+          <details class="question" data-topic="llm" data-keywords="Self-Attention Multi-Head Attention MHA QKV 模型基础">
+            <summary>
+              <span class="question-label">
+                <span class="topic-tag">LLM 基础</span>
+                <span class="question-title">自注意力里的 Q、K、V 从哪来？它和多头注意力是什么关系？</span>
+              </span>
+              <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+            </summary>
+            <div class="answer">
+              <h3>参考答案</h3>
+              <p>自注意力把同一序列的表示分别投影为 Q、K、V。Q 与 K 计算位置之间的注意力权重，再用权重对 V 做加权求和。</p>
+              <p>多头注意力为各头学习各自的投影，并行计算注意力，再拼接和投影各头输出。自注意力描述 Q、K、V 的输入来源，多头描述计算方式。Transformer 的多头机制也能用于交叉注意力，此时 Q 与 K、V 来自不同序列。</p>
+              <dl class="question-sources">
+                <div><dt>题目出处</dt><dd><a href="https://www.nowcoder.com/feed/main/detail/10b2fcaf73d2401f8636bd0459e1cd08" target="_blank" rel="noopener noreferrer">牛客面经·技术基础第 13 题</a></dd></div>
+                <div><dt>答案依据</dt><dd><a href="https://arxiv.org/pdf/1706.03762#page=4" target="_blank" rel="noopener noreferrer">Transformer 原论文 §3.2</a></dd></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="question" data-topic="rag" data-keywords="检索增强生成 混合检索 BM25 Reciprocal Rank Fusion">
+            <summary>
+              <span class="question-label">
+                <span class="topic-tag">RAG</span>
+                <span class="question-title">文档库既有政策编号，也有口语化提问。如何融合关键词和向量检索？</span>
+              </span>
+              <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+            </summary>
+            <div class="answer">
+              <h3>参考答案</h3>
+              <p>并行执行两路召回。关键词检索适合匹配政策编号和专有名词，向量检索可以找出与口语提问语义接近的段落。</p>
+              <p>可用倒数排名融合（RRF）合并结果。按文档在各列表的排名计算贡献，累加后重新排序，这样两路原始分数采用不同量纲也能融合。用真实查询验证编号命中率和语义查询召回率，再调整候选数量或融合权重。</p>
+              <dl class="question-sources">
+                <div><dt>题目出处</dt><dd><a href="https://www.nowcoder.com/feed/main/detail/10b2fcaf73d2401f8636bd0459e1cd08" target="_blank" rel="noopener noreferrer">牛客面经·场景设计第 11 题</a></dd></div>
+                <div><dt>答案依据</dt><dd><a href="https://learn.microsoft.com/en-us/azure/search/hybrid-search-ranking#how-rrf-ranking-works" target="_blank" rel="noopener noreferrer">Azure AI Search 混合检索排序</a></dd></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="question" data-topic="agent" data-keywords="智能体 Reasoning Acting Observation 工具调用">
+            <summary>
+              <span class="question-label">
+                <span class="topic-tag">Agent</span>
+                <span class="question-title">在 ReAct Agent 中，推理、行动和观察如何决定下一步？</span>
+              </span>
+              <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+            </summary>
+            <div class="answer">
+              <h3>参考答案</h3>
+              <p>推理根据已知信息判断接下来要做什么。行动执行选定操作，例如调用工具。观察是环境返回的结果，它会进入上下文，供下一轮判断使用。</p>
+              <p>例如，查询第一个城市的天气后，Agent 根据返回的数据决定直接回答，还是继续查询另一个城市。上线时可以为循环设置执行上限，避免一项任务长时间占用资源。</p>
+              <dl class="question-sources">
+                <div><dt>题目出处</dt><dd><a href="https://www.nowcoder.com/feed/main/detail/79fe3fc8f8cb4c4d9beca478f4279e3a" target="_blank" rel="noopener noreferrer">牛客面经·Agent 开发第 4 题</a></dd></div>
+                <div><dt>答案依据</dt><dd><a href="https://arxiv.org/pdf/2210.03629#page=3" target="_blank" rel="noopener noreferrer">ReAct 原论文 §2</a><a href="https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT" target="_blank" rel="noopener noreferrer">LangGraph 步数限制</a></dd></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="question" data-topic="eval" data-keywords="Evaluation Evals 回归评测 Tool Calling Trajectory">
+            <summary>
+              <span class="question-label">
+                <span class="topic-tag">评测</span>
+                <span class="question-title">企业助手升级后，为什么要同时回归测试最终答复和工具调用轨迹？</span>
+              </span>
+              <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+            </summary>
+            <div class="answer">
+              <h3>参考答案</h3>
+              <p>最终答复用来验证任务是否完成、事实和输出格式是否正确。调用轨迹用来定位过程问题，例如答复表面正确，但查询工具用了错误参数。</p>
+              <p>用固定回归样例检查关键工具是否调用、关键参数是否匹配，以及必要步骤是否按顺序执行。如果多个顺序都能完成任务，可检查所需调用或关键步骤，避免把有效路径误判成失败。</p>
+              <dl class="question-sources">
+                <div><dt>题目出处</dt><dd><a href="https://www.nowcoder.com/feed/main/detail/fa50ef5521f84cb788f911cd31e5a98a?sourceSSR=post&amp;weFlow=true" target="_blank" rel="noopener noreferrer">牛客面经·Agent 迭代与回归评测</a></dd></div>
+                <div><dt>答案依据</dt><dd><a href="https://docs.langchain.com/oss/python/langchain/test/evals#trajectory-match-evaluator" target="_blank" rel="noopener noreferrer">LangChain Agent Evals 轨迹匹配</a></dd></div>
+              </dl>
+            </div>
+          </details>
+
+          <details class="question" data-topic="deploy" data-keywords="KV Cache K V PagedAttention vLLM 推理服务 显存占用">
+            <summary>
+              <span class="question-label">
+                <span class="topic-tag">部署</span>
+                <span class="question-title">如何估算单条请求的 KV 缓存显存？为什么实测占用可能不同？</span>
+              </span>
+              <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+            </summary>
+            <div class="answer">
+              <h3>参考答案</h3>
+              <p>假设各层都缓存完整序列，K、V 形状和精度相同，单条序列的有效 KV 张量大小可以按下式估算。</p>
+              <span class="formula">2 × 层数 × 缓存 token 数 × KV 头数 × 每头维度 × 每元素字节数</span>
+              <p>实测还受显存分块、共享前缀和缓存格式影响。估算时应说明模型的 KV 头数、保留长度和数据类型，也要分清指标统计的是缓存张量、分配的缓存块还是整个服务的占用。</p>
+              <dl class="question-sources">
+                <div><dt>题目出处</dt><dd><a href="https://www.nowcoder.com/feed/main/detail/205bf109de1843c8850d028fa8e29a05" target="_blank" rel="noopener noreferrer">牛客面经·推理框架开发第 3 题</a></dd></div>
+                <div><dt>答案依据</dt><dd><a href="https://huggingface.co/docs/transformers/main/en/cache_explanation#cache-storage-implementation" target="_blank" rel="noopener noreferrer">Transformers 缓存形状</a><a href="https://arxiv.org/html/2309.06180" target="_blank" rel="noopener noreferrer">PagedAttention 原论文 §3–4</a></dd></div>
+              </dl>
+            </div>
+          </details>
+        </div>
+
+        </noscript>
+
+        <nav class="pagination" id="pagination" aria-label="题目分页" hidden>
+          <button type="button" id="previous-page">上一页</button>
+          <span id="page-number" aria-live="polite"></span>
+          <button type="button" id="next-page">下一页</button>
+        </nav>
+
+        <div class="empty" id="empty" hidden>
+          <p>没有符合条件的题目</p>
+          <button class="text-button" id="reset-filters" type="button">重置筛选</button>
+        </div>
+        </div>
+      </section>
+
+      <footer class="about" id="about">
+        <h2>收录说明</h2>
+        <p id="collection-summary">面经题根据公开原帖改写。开放题库的答案来自标注的上游内容。</p>
+        <details class="source-details" id="source-details" hidden>
+          <summary>采集来源与许可</summary>
+          <ul id="source-list"></ul>
+        </details>
+      </footer>
+    </main>
+  </div>
+
+  <template id="question-template">
+    <details class="question">
+      <summary>
+        <span class="question-label">
+          <span class="topic-tag"></span>
+          <span class="question-title"></span>
+        </span>
+        <span class="answer-toggle" aria-hidden="true"><span class="expand-label">展开答案</span><span class="collapse-label">收起答案</span></span>
+      </summary>
+      <div class="answer">
+        <h3></h3>
+        <div class="answer-body"></div>
+        <dl class="question-sources"></dl>
+      </div>
+    </details>
+  </template>
+  <script type="application/json" id="bank-data">{"sources":[],"records":[]}</script>
+  <script>
+    const dataset = JSON.parse(document.querySelector('#bank-data').textContent);
+    const search = document.querySelector('#search');
+    const clearSearch = document.querySelector('#clear-search');
+    const topicFilters = [...document.querySelectorAll('.topic-filter[data-topic]')];
+    const overviewFilter = document.querySelector('#overview-filter');
+    const resultCount = document.querySelector('#result-count');
+    const resultHeading = document.querySelector('#question-heading');
+    const results = document.querySelector('#results');
+    const questionList = document.querySelector('#questions');
+    const template = document.querySelector('#question-template');
+    const empty = document.querySelector('#empty');
+    const pagination = document.querySelector('#pagination');
+    const previousPage = document.querySelector('#previous-page');
+    const nextPage = document.querySelector('#next-page');
+    const pageNumber = document.querySelector('#page-number');
+    const study = document.querySelector('#study');
+    const studyHeading = document.querySelector('#study-heading');
+    const studyIntro = document.querySelector('#study-intro');
+    const studyGrid = document.querySelector('#study-grid');
+    const studyBack = document.querySelector('#study-back');
+    const topicLabels = Object.fromEntries(topicFilters.map((filter) => [
+      filter.dataset.topic, filter.firstChild.textContent.trim(),
+    ]));
+    const pageSize = 20;
+    const groups = dataset.study_groups ?? [];
+    const groupsById = new Map(groups.map((group) => [group.id, group]));
+    const subtopicLists = new Map();
+    const subtopicFilters = new Map();
+    let selectedTopic = null;
+    let selectedGroup = null;
+    let expandedTopic = null;
+    let filtered = [];
+    let currentPage = 0;
+
+    function normalize(text) {
+      return text.normalize('NFKC').toLowerCase().trim();
+    }
+
+    const questions = dataset.records.map((record) => ({
+      ...record,
+      searchable: normalize([
+        topicLabels[record.topic], groupsById.get(record.study_group)?.label, record.question, record.answer,
+      ].join(' ')),
+    }));
+
+    function makeLink(source) {
+      const anchor = document.createElement('a');
+      if (source.url.startsWith('https://')) anchor.href = source.url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = source.label;
+      return anchor;
+    }
+
+    function addSources(container, label, links) {
+      if (links.length === 0) return;
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      const sources = document.createElement('dd');
+      term.textContent = label;
+      sources.append(...links.map(makeLink));
+      row.append(term, sources);
+      container.append(row);
+    }
+
+    function makeQuestion(record) {
+      const card = template.content.firstElementChild.cloneNode(true);
+      card.dataset.topic = record.topic;
+      card.querySelector('.topic-tag').textContent = groupsById.get(record.study_group)?.label ?? topicLabels[record.topic];
+      card.querySelector('.question-title').textContent = record.question;
+      const labels = { editorial: '参考答案 · 本站补写', source: '参考答案 · 来源题库', pending: '待补充答案' };
+      card.querySelector('.answer h3').textContent = labels[record.answer_kind];
+      const answer = card.querySelector('.answer-body');
+      // The collector renders this field with raw HTML disabled.
+      if (record.answer_html) answer.innerHTML = record.answer_html;
+      else answer.textContent = record.answer || '可通过题目出处查看上下文。';
+      const sources = card.querySelector('.question-sources');
+      addSources(sources, '题目出处', record.origins);
+      addSources(sources, record.answer_kind === 'editorial' ? '答案依据' : '答案出处', record.references);
+      return card;
+    }
+
+    function renderPage() {
+      const start = currentPage * pageSize;
+      questionList.replaceChildren(...filtered.slice(start, start + pageSize).map(makeQuestion));
+      const pageCount = Math.ceil(filtered.length / pageSize);
+      resultCount.textContent = filtered.length + ' 道题';
+      empty.hidden = filtered.length > 0;
+      pagination.hidden = pageCount < 2;
+      previousPage.disabled = currentPage === 0;
+      nextPage.disabled = currentPage + 1 >= pageCount;
+      pageNumber.textContent = (currentPage + 1) + ' / ' + pageCount + ' 页';
+    }
+
+    function studyCards(sections) {
+      const cards = document.createElement('div');
+      cards.className = 'study-cards';
+      for (const group of sections) {
+        const button = document.createElement('button');
+        const title = document.createElement('span');
+        const count = document.createElement('span');
+        button.type = 'button';
+        button.className = 'study-card';
+        title.className = 'study-card-title';
+        title.textContent = group.label;
+        count.className = 'study-card-count';
+        count.textContent = group.count + ' 道';
+        button.append(title, ' ', count);
+        button.addEventListener('click', () => selectGroup(group));
+        cards.append(button);
+      }
+      return cards;
+    }
+
+    function renderStudy(group) {
+      studyBack.hidden = !group;
+      studyGrid.hidden = Boolean(group);
+      if (group) {
+        studyGrid.replaceChildren();
+        studyHeading.textContent = group.label;
+        studyBack.textContent = '返回 ' + topicLabels[group.topic] + ' 题型';
+        studyIntro.textContent = group.summary;
+        return;
+      }
+
+      if (selectedTopic === null) {
+        studyHeading.textContent = '全部题型';
+        studyIntro.textContent = groups.length + ' 个题型，覆盖 ' + questions.length.toLocaleString('zh-CN') + ' 道题。';
+        studyGrid.replaceChildren();
+        for (const [topic, label] of Object.entries(topicLabels)) {
+          const sections = groups.filter((item) => item.topic === topic);
+          if (!sections.length) continue;
+          const section = document.createElement('section');
+          const heading = document.createElement('h3');
+          section.className = 'study-group';
+          heading.textContent = label;
+          section.append(heading, studyCards(sections));
+          studyGrid.append(section);
+        }
+      } else {
+        const sections = groups.filter((item) => item.topic === selectedTopic);
+        studyHeading.textContent = topicLabels[selectedTopic] + ' 题型';
+        studyIntro.textContent = sections.length + ' 个题型';
+        studyGrid.replaceChildren(studyCards(sections));
+      }
+    }
+
+    function updateResults() {
+      const terms = normalize(search.value).split(/\s+/u).filter(Boolean);
+      const group = groupsById.get(selectedGroup);
+      const overview = groups.length > 0 && selectedTopic !== '' && !terms.length;
+      study.hidden = !overview;
+      results.hidden = overview && !group;
+      if (overview) renderStudy(group);
+      clearSearch.hidden = search.value === '';
+
+      if (results.hidden) return;
+      filtered = questions.filter((question) =>
+        (!selectedTopic || selectedTopic === question.topic)
+        && (!selectedGroup || selectedGroup === question.study_group)
+        && terms.every((term) => question.searchable.includes(term))
+      );
+      currentPage = 0;
+      renderPage();
+    }
+
+    function syncSidebar() {
+      overviewFilter.setAttribute('aria-pressed', String(selectedTopic === null));
+      for (const filter of topicFilters) {
+        const topic = filter.dataset.topic;
+        filter.setAttribute('aria-pressed', String(topic === selectedTopic));
+        const children = subtopicLists.get(topic);
+        if (children) {
+          const expanded = expandedTopic === topic;
+          filter.setAttribute('aria-expanded', String(expanded));
+          children.hidden = !expanded;
+        }
+      }
+      for (const [id, filter] of subtopicFilters) {
+        filter.setAttribute('aria-pressed', String(id === selectedGroup));
+      }
+    }
+
+    function selectTopic(topic, fromStudy = false) {
+      selectedTopic = topic;
+      expandedTopic = topic || null;
+      selectedGroup = null;
+      syncSidebar();
+      updateResults();
+      const heading = study.hidden ? resultHeading : studyHeading;
+      if (fromStudy) heading.focus({ preventScroll: true });
+      if (heading.getBoundingClientRect().top < 0) heading.scrollIntoView();
+    }
+
+    function selectGroup(group, fromSidebar = false) {
+      selectedTopic = group.topic;
+      expandedTopic = group.topic;
+      selectedGroup = group.id;
+      syncSidebar();
+      updateResults();
+      const heading = study.hidden ? resultHeading : studyHeading;
+      if (!fromSidebar) heading.focus({ preventScroll: true });
+      if (!fromSidebar || heading.getBoundingClientRect().top < 0) {
+        (study.hidden ? resultHeading : study).scrollIntoView();
+      }
+    }
+
+    function changePage(step) {
+      currentPage += step;
+      renderPage();
+      resultHeading.focus({ preventScroll: true });
+      resultHeading.scrollIntoView();
+    }
+
+    for (const filter of topicFilters) {
+      const topic = filter.dataset.topic;
+      const count = questions.filter((question) => topic === '' || question.topic === topic).length;
+      filter.querySelector('.topic-count').textContent = count;
+      const children = groups.filter((group) => group.topic === topic);
+      if (children.length) {
+        const list = document.createElement('ul');
+        list.className = 'subtopic-list';
+        list.id = 'subtopics-' + topic;
+        list.hidden = true;
+        filter.setAttribute('aria-controls', list.id);
+        filter.setAttribute('aria-expanded', 'false');
+        filter.after(list);
+        subtopicLists.set(topic, list);
+        for (const group of children) {
+          const item = document.createElement('li');
+          const branch = document.createElement('button');
+          const number = document.createElement('span');
+          branch.type = 'button';
+          branch.className = 'subtopic-filter';
+          branch.setAttribute('aria-pressed', 'false');
+          number.className = 'topic-count';
+          number.textContent = group.count;
+          branch.append(group.label + ' ', number);
+          branch.addEventListener('click', () => selectGroup(group, true));
+          subtopicFilters.set(group.id, branch);
+          item.append(branch);
+          list.append(item);
+        }
+      }
+      filter.addEventListener('click', () => {
+        if (children.length && topic === selectedTopic && !selectedGroup) {
+          expandedTopic = expandedTopic === topic ? null : topic;
+          syncSidebar();
+        } else {
+          selectTopic(topic);
+        }
+      });
+    }
+    overviewFilter.addEventListener('click', () => selectTopic(null));
+    studyBack.addEventListener('click', () => selectTopic(selectedTopic, true));
+    search.addEventListener('input', updateResults);
+    clearSearch.addEventListener('click', () => {
+      search.value = '';
+      search.focus();
+      updateResults();
+    });
+    document.querySelector('#reset-filters').addEventListener('click', () => {
+      search.value = '';
+      search.focus();
+      selectTopic(null);
+    });
+    previousPage.addEventListener('click', () => changePage(-1));
+    nextPage.addEventListener('click', () => changePage(1));
+
+    const sourceList = document.querySelector('#source-list');
+    for (const source of dataset.sources) {
+      const entry = document.createElement('li');
+      entry.append(makeLink({ label: source.name, url: source.url }), ' · ' + source.count + ' 道题');
+      if (source.license) {
+        const license = document.createElement('details');
+        const summary = document.createElement('summary');
+        const text = document.createElement('pre');
+        summary.textContent = 'MIT 许可与版权声明';
+        text.className = 'license-text';
+        text.textContent = source.license;
+        license.append(summary, text);
+        entry.append(license);
+      }
+      sourceList.append(entry);
+    }
+
+    if (dataset.collected_on) {
+      const note = document.querySelector('#collection-summary');
+      const date = document.createElement('time');
+      date.dateTime = dataset.collected_on;
+      date.textContent = dataset.collected_on;
+      note.append(' 最近采集日期 ', date, '。');
+    }
+    document.querySelector('#source-details').hidden = sourceList.children.length === 0;
+    updateResults();
+    document.querySelector('#topic-filters').hidden = false;
+    document.querySelector('#search-controls').hidden = false;
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "llm": [
+    {"id":"llm-architecture","label":"Transformer 架构","summary":"画出一个 Transformer block，解释编码器与解码器的差别，以及残差、归一化和前馈层各起什么作用。","paths":["transformer/architecture-training","transformer/transformer-basics"],"terms":["transformer架构","rnn","编码器","解码器","归一化","layer norm","rmsnorm","前馈网络","残差连接"],"phrases":["transformer的核心","layernorm","rmsnorm","归一化"]},
+    {"id":"llm-attention","label":"注意力机制","summary":"讲清 Q、K、V 到输出的计算，再比较多头、自注意力、交叉注意力，以及 GQA、MQA 的设计取舍。","paths":["transformer/attention"],"terms":["自注意力","多头注意力","attention","qkv","gqa","mqa","softmax"]},
+    {"id":"llm-tokens","label":"分词与位置编码","summary":"解释文本怎样变成 token 和向量，再比较 BPE、绝对位置编码和 RoPE。","paths":["transformer/tokens-position"],"terms":["tokenizer","tokenization","分词","词表","bpe","sentencepiece","rope","位置编码","位置嵌入"]},
+    {"id":"llm-context","label":"长上下文","summary":"区分上下文窗口和实际可用上下文，能说明长度增加对注意力、显存和信息定位的影响。","paths":["transformer/long-context"],"terms":["长上下文","上下文窗口","lost in the middle","外推","yarn"],"phrases":["lost in the middle","长上下文","上下文窗口"]},
+    {"id":"llm-generation","label":"解码与采样","summary":"从预测下一个 token 讲到生成结束，比较温度、Top-k、Top-p 和不同解码策略对输出的影响。","terms":["解码","采样","temperature","top-p","top-k","beam search","prefill","speculative decoding","continuous batching","kv cache"]},
+    {"id":"llm-model-families","label":"模型结构变体","summary":"比较稠密模型和 MoE，解释参数量、激活计算量与推理成本如何变化。","paths":["transformer/moe"],"terms":["moe","混合专家","专家路由","llama","稠密模型","量化"],"phrases":["混合专家","moe","w8a8"]},
+    {"id":"llm-neural-networks","label":"神经网络基础","summary":"复习感知机、激活函数、反向传播和各类网络，能把直觉、公式和实现联系起来。","paths":["35-深度学习核心机制"],"terms":["感知机","激活函数","反向传播","卷积","池化","正向传播","神经网络"]},
+    {"id":"llm-training","label":"训练与泛化","summary":"从损失、梯度、优化器说到过拟合，说明如何判断训练瓶颈并选择正则化手段。","terms":["损失函数","梯度","优化器","学习率","正则化","过拟合","欠拟合","dropout","训练集"],"phrases":["优化器","正则化","过拟合","欠拟合","学习率","损失函数","梯度消失","dropout"]}
+  ],
+  "rag": [
+    {"id":"rag-architecture","label":"RAG 流程与选型","summary":"讲完整链路，再解释为什么选择 RAG、长上下文或微调，以及在哪一层排查失败。","paths":["rag/rag-basics"],"terms":["rag流程","rag架构","基本原理","系统设计","端到端","模块化rag","微调"]},
+    {"id":"rag-chunking","label":"文档解析与切分","summary":"比较按长度、按语义和按标题切分，说明块大小、重叠和父子索引怎样影响召回。","paths":["ingestion-chunking"],"terms":["切片","分块","chunk","父子索引","文档解析","ocr","pdf","切分"],"phrases":["父子","子块","父段落","切分","切片"]},
+    {"id":"rag-embedding","label":"Embedding 与向量索引","summary":"解释嵌入、距离度量与近似搜索，比较 HNSW、IVF 和量化对内存、延迟与召回的影响。","paths":["embedding-vector"],"terms":["向量数据库","embedding","hnsw","ivf","量化","余弦相似度","近似最近邻","向量维度","faiss"]},
+    {"id":"rag-retrieval","label":"混合召回与查询改写","summary":"比较关键词和向量召回，说明何时做查询改写、多路召回及按查询动态路由。","paths":["rag/retrieval-"],"terms":["混合检索","混合召回","bm25","查询改写","query rewrite","query rewriting","多路召回","hyde","稀疏检索"],"phrases":["混合召回","混合检索","融合关键词和向量检索","查询改写","bm25关键词检索"]},
+    {"id":"rag-reranking","label":"结果融合与重排","summary":"解释 RRF、分数校准和重排模型各在哪一步工作，并区分候选缺失与排序错误。","paths":["rag/reranking"],"terms":["重排","rerank","rrf","cross-encoder","分数校准","排序融合","learning-to-rank"],"phrases":["重排","reranker","分数不可比","结果融合","rrf"]},
+    {"id":"rag-freshness","label":"增量索引与时效","summary":"复习增量入库、版本切换和缓存失效，能解释怎样避免查到旧文档或半更新数据。","paths":["rag/index-freshness"],"terms":["增量索引","版本切换","实时更新","知识库更新","缓存失效","半更新","有效期","索引刷新"],"phrases":["半更新","增量索引","旧内容","索引更新","更新不及时"]},
+    {"id":"rag-grounding","label":"引用、拒答与幻觉","summary":"说明如何让回答引用可追溯的证据，并设计冲突证据、证据不足和幻觉的处理方式。","paths":["rag/generation-grounding"],"terms":["忠实度","引用","grounding","拒答","幻觉","证据冲突","无答案"],"phrases":["幻觉","拒答","引用品质","忠实度","证据冲突"]},
+    {"id":"rag-graph","label":"图检索与多跳问答","summary":"解释图检索为何适合关系型问题，比较多跳检索、GraphRAG 和普通向量检索的成本与适用场景。","terms":["graphrag","知识图谱","多跳","图检索","self-rag","agentic rag","crag"],"phrases":["图检索","graphrag","多跳推理"]},
+    {"id":"rag-evaluation","label":"RAG 评测与排错","summary":"用同一批查询分别评估检索和生成，从召回率、排名质量、引用正确性找出瓶颈。","terms":["评测","评估","ragas","recall@k","ndcg","mrr","黄金集"],"phrases":["ragas","recall@k","ndcg","mrr","评估体系","评测数据集","定位是检索问题"]}
+  ],
+  "agent": [
+    {"id":"agent-architecture","label":"Agent 架构与运行时","summary":"把 Agent 拆成模型、状态、工具与执行循环，再说明框架或 Harness 提供了什么能力。","paths":["agent-architecture/architecture","agent-architecture/frameworks","agent-architecture/runtime-harness"],"terms":["整体架构","核心模块","harness","运行时","agent loop","什么是agent","langgraph","langchain"]},
+    {"id":"agent-planning","label":"规划与推理循环","summary":"练习 ReAct、任务分解、计划执行和反思，能说明观察结果何时应触发重新规划。","paths":["planning-execution/planning","reasoning-patterns"],"terms":["react","任务拆解","任务分解","重新规划","规划器","反思","plan-and-execute","思维链"]},
+    {"id":"agent-workflow","label":"工作流与任务路由","summary":"比较固定工作流和模型自主路由，说明串行、并行、分支及审批节点怎样设计。","paths":["planning-execution/workflow","task-routing"],"terms":["工作流","workflow","任务路由","路由","编排","意图识别","条件分支"]},
+    {"id":"agent-recovery","label":"失败恢复与重试","summary":"分别回答如何检测失败、决定重试或回滚，以及如何从可持久化的任务状态恢复。","paths":["planning-execution/recovery","agent-architecture/reliability","tools-skills-mcp/reliability"],"terms":["失败恢复","重试","重跑","回滚","断点","恢复","幂等","超时","循环退出"]},
+    {"id":"agent-verification","label":"校验与停止条件","summary":"为任务定义完成条件，说明如何验证工具结果，以及什么时候停止、追问或转人工。","paths":["planning-execution/verification"],"terms":["结果验证","核验","校验","停止条件","任务完成","人工接管","成功标准"],"phrases":["校验","停止条件","成功标准","如何判断当前步骤"]},
+    {"id":"agent-tool-calling","label":"工具调用与协议消息","summary":"从工具注册、参数 Schema 和工具选择讲到结果回填，能解释并行调用时如何匹配请求和响应。","paths":["tools-skills-mcp/tool-platform"],"terms":["工具调用","tool use","function calling","tool message","tool_call_id","工具注册","工具返回","结构化输出"],"phrases":["工具结果消息","tool message","tool_call_id","function calling","工具注册中心"]},
+    {"id":"agent-mcp","label":"MCP","summary":"解释 Host、Client、Server 的分工，比较 Tools、Resources、Prompts，并说明如何接入与管理权限。","paths":["tools-skills-mcp/mcp","hooks-mcp"],"terms":["mcp","model context protocol","resources","stdio","streamablehttp"],"phrases":["mcp"]},
+    {"id":"agent-skills","label":"Skills 与复用","summary":"从技能发现、加载与选用讲到版本治理，说明如何把可重复任务沉淀成团队可复用的 Skill。","paths":["tools-skills-mcp/skill-"],"terms":["skill","技能","能力复用","渐进式披露"]},
+    {"id":"agent-memory","label":"短期与长期记忆","summary":"区分会话状态与跨会话记忆，复习记忆的写入、召回、更新、遗忘及访问边界。","paths":["context-knowledge/memory","memory-context"],"terms":["记忆","memory","mem0","memgpt","用户偏好","会话持久化"],"phrases":["短期记忆","长期记忆","memgpt","mem0"]},
+    {"id":"agent-context","label":"上下文与提示词","summary":"说明如何组织指令、历史与外部证据，再比较滑动窗口、摘要和检索式上下文补充。","paths":["context-knowledge/compression-cache","context-knowledge/context-engineering","context-cache","context-knowledge/session-state","31-context-engineering"],"terms":["上下文工程","上下文压缩","提示词","prompt engineering","动态摘要","滑动窗口","context engineering","context compaction"],"phrases":["上下文压缩","动态摘要","滑动窗口"]},
+    {"id":"agent-team","label":"多 Agent 协作","summary":"比较单 Agent 与多 Agent 的适用条件，复习任务分工、状态同步、结果合并和意见冲突处理。","paths":["multi-agent/","subagents-teams","43-agent进阶"],"terms":["多agent","多智能体","multi-agent","子agent","subagent","supervisor","协作"],"phrases":["多agent","多智能体","multi-agent","子agent"]},
+    {"id":"agent-coding","label":"代码 Agent 与产品实现","summary":"围绕代码理解、计划、工具执行与测试闭环练习设计，留意 Claude Code、OpenCode 等实现的版本差异。","paths":["04-products/claude-code/","04-products/opencode/","32-agentic-coding"],"terms":["claude code","opencode","coding agent","agentic coding","代码agent","代码智能体"]},
+    {"id":"agent-platform","label":"平台集成与沙箱","summary":"复习多入口应用接入、会话路由、外部能力授权和执行隔离，用实际平台案例解释取舍。","paths":["04-products/openclaw/","sandbox-security","agent-architecture/platform"],"terms":["openclaw","平台集成","消息渠道","沙箱","工具权限","审批"]}
+  ],
+  "eval": [
+    {"id":"eval-metrics","label":"评测指标与验收","summary":"从业务目标导出任务完成率、正确率和成本等指标，并说明怎样给成功与失败定义可执行标准。","paths":["evaluation.md"],"terms":["评估指标","完成率","正确率","准确率","验收","评估什么","指标体系"]},
+    {"id":"eval-dataset","label":"数据集与回归","summary":"复习黄金集、边界样本和版本化，能设计改动前后可比较的回归实验。","terms":["黄金集","评测集","测试集","回归","golden dataset","数据集","样本","标注"],"phrases":["黄金集","构建评测集","回归集","评测数据集","回归测试"]},
+    {"id":"eval-judge","label":"LLM 裁判与评分","summary":"比较规则、人工与模型评分，解释如何制定评分量表、校准裁判及减少位置和风格偏差。","paths":["evaluation-rubric"],"terms":["llm-as-judge","llm judge","裁判","评委","rubric","pairwise","pointwise","评分模型","评分规则"],"phrases":["llm-as-judge","裁判","评委","评分量表","评分规则"]},
+    {"id":"eval-trace","label":"工具调用与轨迹评测","summary":"区分最终结果、关键步骤与整段轨迹的评测，说明怎样验证工具、参数、顺序和必要动作。","terms":["调用轨迹","轨迹评测","工具选择","trajectory","step-level","outcome-level","工具调用","调用顺序"],"phrases":["轨迹评测","工具调用轨迹","工具和正确的参数","工具调用的准确性","trajectory"]},
+    {"id":"eval-online","label":"线上反馈与 A/B","summary":"讲清线上与离线评测的差别，复习 A/B 分流、负反馈采样和线上坏例回流。","paths":["evaluation-offline-online"],"terms":["在线评估","线上评测","线上观测","a/b","离线评测","用户反馈","线上","漂移","错例回流"],"phrases":["线上坏例","线上反馈","a/b","在线评估","漂移"]},
+    {"id":"eval-retrieval","label":"检索与生成评测","summary":"分别衡量召回、重排和生成，能解释 Recall@K、NDCG 与答案忠实度各衡量哪个环节。","paths":["rag/evaluation-governance"],"terms":["recall@k","ndcg","mrr","ragas","向量检索","检索评测","忠实度","召回"]},
+    {"id":"eval-benchmark","label":"公开基准与可比性","summary":"比较公开基准适用的任务、评测环境及稳定性，说明如何防止测试泄漏影响结论。","terms":["benchmark","swe-bench","tau-bench","gaia","webarena","osworld","基准","污染"],"phrases":["swe-bench","tau-bench","benchmark","基准测试"]}
+  ],
+  "deploy": [
+    {"id":"deploy-serving","label":"模型推理与并行","summary":"从 Prefill、Decode 讲性能瓶颈，比较批处理、量化、张量并行和流水线并行。","paths":["transformer/inference","13-模型部署与推理优化"],"terms":["prefill","decode","并行","量化","vllm","首token","显存","批处理","推理服务"],"phrases":["prefill","张量并行","流水线并行","continuous batching"]},
+    {"id":"deploy-cache","label":"KV 与语义缓存","summary":"能估算 KV 缓存显存，并比较前缀缓存、语义缓存的命中条件、失效策略及隔离边界。","paths":["model-capability-cost/cache"],"terms":["kv缓存","kv cache","prompt cache","前缀缓存","语义缓存","缓存策略","paged attention"],"phrases":["kv缓存","kv cache","前缀缓存","语义缓存","prompt cache"]},
+    {"id":"deploy-gateway","label":"网关、路由与限流","summary":"设计多模型统一入口，说明路由、配额、流式输出、退避和限流如何配合。","paths":["routing-fallback","44-llm网关架构","streaming-capacity"],"terms":["网关","gateway","限流","rate limit","模型路由","路由策略","流式","连接池"]},
+    {"id":"deploy-cost","label":"Token 计量与成本","summary":"拆分输入、输出和缓存成本，说明如何做预算、计费，以及怎样验证省钱方案的效果。","paths":["cost-token","45-token计量"],"terms":["成本","计费","预算","用量","计量","费用","token消耗"],"phrases":["计费","计量","单位成本","成本如何","预算"]},
+    {"id":"deploy-observability","label":"服务监控与可观测性","summary":"从日志、指标、追踪说明如何定位一次慢请求或失败，能设计质量和性能的分层告警。","paths":["safety-governance-observability/observability","46-可观测性与限流"],"terms":["可观测性","监控","日志","trace","告警","指标","延迟分布","p99","p95"],"phrases":["opentelemetry","告警","langfuse"]},
+    {"id":"deploy-agent-tracing","label":"代码 Agent 观测","summary":"练习把模型、命令、工具和测试事件关联到一次会话，区分服务正常与任务完成。","paths":["coding-agent-observability"],"terms":["黄金信号","session级","任务轨迹","编码成功率","coding agent一次会话"]},
+    {"id":"deploy-reliability","label":"高可用与故障排查","summary":"从错误分类讲到重试、熔断、降级、故障切换与复盘，能解释如何避免失败放大。","paths":["incident-reliability","47-高可用与故障转移","model-engineering"],"terms":["高可用","故障","熔断","降级","failover","重试","可靠性","故障切换"]},
+    {"id":"deploy-safety","label":"权限与生产治理","summary":"按最小权限设计工具授权、敏感数据处理和审计，并给高风险操作增加人工审批。","paths":["access-privacy","safety-governance-observability/governance","prompt-security","hallucination"],"terms":["权限","安全","审计","审批","注入","敏感数据","治理","human-in-the-loop"]},
+    {"id":"deploy-sandbox","label":"沙箱与测试环境","summary":"比较容器、工作树和只读挂载的隔离能力，复习预热、回收与可复现测试环境的设计。","paths":["coding-agent-sandbox","sandbox-testing"],"terms":["沙箱","隔离","仓库预热","测试环境","只读挂载","容器","镜像"],"phrases":["沙箱","只读挂载","仓库预热"]},
+    {"id":"deploy-code-search","label":"代码检索与工程索引","summary":"比较关键词、向量、AST 和调用图，解释代码索引怎样跟随变更更新和校验。","paths":["engineering-platform/code-search","engineering-platform/coding-agent.md"],"terms":["ast","调用图","代码检索","代码索引","代码理解","仓库检索"],"phrases":["代码检索","代码索引","ast"]},
+    {"id":"deploy-multimodal","label":"多模态应用部署","summary":"围绕图像、语音或文档输入，说明预处理、模态融合、时延与质量如何在生产中权衡。","paths":["engineering-platform/multimodal"],"terms":["多模态","图像","语音","音频","视觉","图片"],"phrases":["多模态","ocr","asr","tts"]},
+    {"id":"deploy-platform","label":"工程平台与发布","summary":"练习设计应用平台、配置管理、发布回滚和 PromptOps，用验收指标说明如何持续迭代。","paths":["platform-engineering","promptops","product-metrics","40-llm应用工程实战"],"terms":["平台","发布","灰度","版本管理","promptops","ci/cd","回滚","多租户"]}
+  ]
+}
