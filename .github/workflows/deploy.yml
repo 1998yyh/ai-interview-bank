@@ -52,7 +52,7 @@ jobs:
           unset DEPLOY_KEY
 
           expected=$(sha256sum dist/index.html)
-          actual=$(gzip -c dist/index.html | ssh -T -i "$credentials/key" \
+          actual=$(gzip -9 -c dist/index.html | ssh -T -i "$credentials/key" \
             -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o "UserKnownHostsFile=$credentials/known_hosts" -o ConnectTimeout=15 \
             -o ServerAliveInterval=10 -o ServerAliveCountMax=3 \

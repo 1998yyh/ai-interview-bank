@@ -12,7 +12,7 @@ fi
 incoming=$(mktemp "$site_dir/incoming/index.XXXXXXXX")
 trap 'rm -f -- "$incoming"' EXIT
 
-timeout 90s bash -o pipefail -c 'gzip -dc | head -c "$2" > "$1"' _ "$incoming" "$((max_bytes + 1))"
+timeout 15m bash -o pipefail -c 'gzip -dc | head -c "$2" > "$1"' _ "$incoming" "$((max_bytes + 1))"
 if (( $(stat -c %s -- "$incoming") > max_bytes )) ||
    [[ $(head -n 1 -- "$incoming") != '<!doctype html>' ]] ||
    ! grep -Fq 'id="bank-data"' "$incoming" ||
